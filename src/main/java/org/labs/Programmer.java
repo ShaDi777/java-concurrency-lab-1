@@ -19,7 +19,7 @@ public class Programmer implements Runnable {
     private volatile PortionState portionState;
 
     @Getter
-    private int totalEatenPortions;
+    private volatile int totalEatenPortions;
 
     public Programmer(int id, int totalCount, Table table) {
         this.id = id;

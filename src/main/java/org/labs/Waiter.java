@@ -1,6 +1,5 @@
 package org.labs;
 
-import java.util.List;
 import lombok.Getter;
 
 public class Waiter implements Runnable {
@@ -9,29 +8,26 @@ public class Waiter implements Runnable {
     private final int id;
     private final Table table;
     private final Kitchen kitchen;
-    private final List<Programmer> programmers;
 
     @Getter
     private int servedOrders;
 
-    public Waiter(int id, Table table, Kitchen kitchen, List<Programmer> programmers) {
+    public Waiter(int id, Table table, Kitchen kitchen) {
         this.id = id;
         this.table = table;
         this.kitchen = kitchen;
-        this.programmers = programmers;
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                int programmerId = table.serveOrderBlocking();
-                if (programmerId == Table.SHUTDOWN_ORDER) {
+                Programmer programmer = table.serveOrderBlocking();
+                if (programmer.getId() == Table.SHUTDOWN_ORDER) {
                     return;
                 }
 
-                Programmer programmer = programmers.get(programmerId);
-                Boolean gotPortion = kitchen.getPortion(programmerId);
+                Boolean gotPortion = kitchen.getPortion(programmer.getId());
                 if (gotPortion == null) {
                     table.placeOrder(programmer);
                     continue;

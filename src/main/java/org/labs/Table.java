@@ -1,7 +1,8 @@
 package org.labs;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,7 +12,11 @@ public class Table {
 
     private final List<Spoon> spoons;
 
-    private final LinkedBlockingQueue<Integer> orders;
+    // The less programmer has eaten - the more first to poll it gets
+    private final PriorityBlockingQueue<Programmer> orders;
+
+    // template programmer to finish order processing
+    private final Programmer shutdownProgrammer;
 
     private final AtomicInteger activeProgrammers;
     private final AtomicBoolean active = new AtomicBoolean(true);
@@ -22,7 +27,11 @@ public class Table {
         assert waiterCount >= 1;
 
         this.waiterCount = waiterCount;
-        this.orders = new LinkedBlockingQueue<>();
+        this.orders = new PriorityBlockingQueue<>(
+            Math.max(1, programmerCount),
+            Comparator.comparingInt(Programmer::getTotalEatenPortions)
+        );
+        this.shutdownProgrammer = new Programmer(SHUTDOWN_ORDER, programmerCount, null);
         this.activeProgrammers = new AtomicInteger(programmerCount);
         this.spoons = spoons;
     }
@@ -35,10 +44,10 @@ public class Table {
         if (!isActive()) {
             return;
         }
-        orders.put(programmer.getId());
+        orders.put(programmer);
     }
 
-    public int serveOrderBlocking() throws InterruptedException {
+    public Programmer serveOrderBlocking() throws InterruptedException {
         return orders.take();
     }
 
@@ -55,7 +64,7 @@ public class Table {
         }
 
         for (int i = 0; i < waiterCount; i++) {
-            orders.offer(SHUTDOWN_ORDER);
+            orders.offer(shutdownProgrammer);
         }
     }
 

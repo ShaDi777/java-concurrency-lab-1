@@ -45,7 +45,7 @@ public class EqualRestaurant extends Restaurant {
 
         List<Waiter> waiters = new ArrayList<>(waiterCount);
         for (int i = 0; i < waiterCount; i++) {
-            waiters.add(new Waiter(i, table, kitchen, programmers));
+            waiters.add(new Waiter(i, table, kitchen));
         }
 
         var executor = Executors.newVirtualThreadPerTaskExecutor();
