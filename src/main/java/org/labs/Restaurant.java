@@ -39,7 +39,7 @@ public class Restaurant {
 
         this.waiters = new ArrayList<>(waiterCount);
         for (int i = 0; i < waiterCount; i++) {
-            this.waiters.add(new Waiter(i, this.table, kitchen, this.programmers));
+            this.waiters.add(new Waiter(i, this.table, kitchen));
         }
 
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
